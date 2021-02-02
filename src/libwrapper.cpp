@@ -18,6 +18,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#include <ostream>
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -38,6 +39,11 @@ static const char ESC_BOLD[] = "\033[1m";
 static const char ESC_ITALIC[] = "\033[3m";
 static const char ESC_LIGHT_GRAY[] = "\033[0;37m";
 static const char ESC_GREEN[] = "\033[0;32m";
+static const char ESC_BROWN[] = "\033[0;33m";
+static const char ESC_RED[] = "\033[0;31m";
+static const char ESC_YELLOW[] = "\033[1;33m";
+static const char ESC_GRAY[] = "\033[0;36m";
+static const char ESC_PURPLE[] = "\033[0;35m";
 
 static const char *SEARCH_TERM_VISFMT = ESC_BOLD;
 static const char *NAME_OF_DICT_VISFMT = ESC_BLUE;
@@ -112,12 +118,30 @@ static std::string xdxf2text(const char *p, bool colorize_output)
         else if (name == "/ex")
             res += colorize_output ? ESC_END : "";
         else if (!name.empty() && name[0] == 'c' && name != "co") {
-            std::string::size_type pos = name.find("code");
+            std::string::size_type pos = name.find("c=");
             if (pos != std::string::npos) {
-                pos += sizeof("code=\"") - 1;
-                std::string::size_type end_pos = name.find("\"");
-                const std::string color(name, pos, end_pos - pos);
-                res += "";
+                pos += sizeof("c=\"");
+                std::string::size_type end_pos = name.find_last_of("\"");
+                const std::string color(name, pos - 1 , end_pos - pos + 1);
+
+                if (colorize_output) {
+                    if (color == "blue" || color == "blueviolet" || color == "darkblue") {
+                        res += ESC_BLUE;
+                    } else if (color == "chocolate" || color == "darkgoldenrod" || color == "darkorange") {
+                        res += ESC_BROWN;
+                    } else if (color == "red" || color == "maroon" || color == "indigo") {
+                        res += ESC_YELLOW;
+                    } else if (color == "darkgray" || color == "dimgray" || color == "gray") {
+                        res += ESC_GRAY;
+                    } else if (color == "green" || color == "lightcoral" || color == "lightseagreen") {
+                        res += ESC_GREEN;
+                    } else if (color == "crimson" || color == "orange") {
+                        res += ESC_PURPLE;
+                    } else {
+                        res += "";
+                    }
+                } else
+                    res += "";
             } else {
                 res += "";
             }
