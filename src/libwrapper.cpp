@@ -26,6 +26,7 @@
 #include <cstring>
 #include <map>
 #include <memory>
+#include <iostream>
 
 #include <glib/gi18n.h>
 
@@ -48,14 +49,20 @@ static const char ESC_PURPLE[] = "\033[0;35m";
 static const char *SEARCH_TERM_VISFMT = ESC_BOLD;
 static const char *NAME_OF_DICT_VISFMT = ESC_BLUE;
 static const char *TRANSCRIPTION_VISFMT = ESC_BOLD;
-static const char *EXAMPLE_VISFMT = ESC_LIGHT_GRAY;
+static const char *EXAMPLE_VISFMT = ESC_ITALIC;
 static const char *KREF_VISFMT = ESC_BOLD;
 static const char *ABR_VISFMT = ESC_GREEN;
 
 static std::string xdxf2text(const char *p, bool colorize_output)
 {
     std::string res;
+    std::string temp;
     for (; *p; ++p) {
+        if (*p == '\n') {
+            res += ESC_END;
+            res += "\n";
+            std::cout << "new line" << std::endl;
+        }
         if (*p != '<') {
             if (g_str_has_prefix(p, "&gt;")) {
                 res += ">";
@@ -295,15 +302,15 @@ void Library::print_search_result(FILE *out, const TSearchResult &res, bool &fir
 
     } else {
         fprintf(out,
-                "-->%s%s%s\n"
-                "-->%s%s%s\n"
-                "%s\n\n",
+                " -- %s%s%s --"
+                // "-->%s%s%s\n"
+                "%s\n",
                 colorize_output_ ? NAME_OF_DICT_VISFMT : "",
                 utf8_output_ ? res.bookname.c_str() : loc_bookname.c_str(),
                 colorize_output_ ? ESC_END : "",
-                colorize_output_ ? SEARCH_TERM_VISFMT : "",
-                utf8_output_ ? res.def.c_str() : loc_def.c_str(),
-                colorize_output_ ? ESC_END : "",
+                // colorize_output_ ? SEARCH_TERM_VISFMT : "",
+                // utf8_output_ ? res.def.c_str() : loc_def.c_str(),
+                // colorize_output_ ? ESC_END : "",
                 utf8_output_ ? res.exp.c_str() : loc_exp.c_str());
     }
 }
@@ -420,8 +427,8 @@ search_result Library::process_phrase(const char *loc_str, IReadLine &io, bool f
 
         if (!show_all_results && !force) {
             if (!json_) {
-                printf(_("Found %zu items, similar to %s.\n"), res_list.size(),
-                       utf8_output_ ? get_impl(str) : utf8_to_locale_ign_err(get_impl(str)).c_str());
+                // printf(_("Found %zu items, similar to %s.\n"), res_list.size(),
+                       // utf8_output_ ? get_impl(str) : utf8_to_locale_ign_err(get_impl(str)).c_str());
             }
             for (size_t i = 0; i < res_list.size(); ++i) {
                 const std::string loc_bookname = utf8_to_locale_ign_err(res_list[i].bookname);
@@ -454,8 +461,8 @@ search_result Library::process_phrase(const char *loc_str, IReadLine &io, bool f
         } else {
             sdcv_pager pager(force || json_);
             if (!json_) {
-                fprintf(pager.get_stream(), _("Found %zu items, similar to %s.\n"),
-                        res_list.size(), utf8_output_ ? get_impl(str) : utf8_to_locale_ign_err(get_impl(str)).c_str());
+                // fprintf(pager.get_stream(), _("Found %zu items, similar to %s.\n"),
+                        // res_list.size(), utf8_output_ ? get_impl(str) : utf8_to_locale_ign_err(get_impl(str)).c_str());
             }
             for (const TSearchResult &search_res : res_list) {
                 print_search_result(pager.get_stream(), search_res, first_result);
