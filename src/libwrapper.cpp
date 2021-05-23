@@ -26,7 +26,6 @@
 #include <cstring>
 #include <map>
 #include <memory>
-#include <iostream>
 
 #include <glib/gi18n.h>
 
@@ -60,8 +59,6 @@ static std::string xdxf2text(const char *p, bool colorize_output)
     for (; *p; ++p) {
         if (*p == '\n') {
             res += ESC_END;
-            res += "\n";
-            std::cout << "new line" << std::endl;
         }
         if (*p != '<') {
             if (g_str_has_prefix(p, "&gt;")) {
